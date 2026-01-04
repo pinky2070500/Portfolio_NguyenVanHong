@@ -1,396 +1,642 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV Tương Tác | Nguyễn Văn Hồng</title>
+    <title>Nguyễn Văn Hồng - GIS Expert Portfolio</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Professional Tech Blue (Slate, Sky, Amber) -->
-    <!-- Application Structure Plan: A single-page narrative SPA. Structure: Hero, Summary, Interactive Skills Dashboard (Radar Chart + Cards), Collapsible Career Timeline, detailed Project Portfolio Grid. This structure guides the recruiter from a high-level summary to deep, relevant details on demand, making it more engaging and efficient than a static PDF. -->
-    <!-- Visualization & Content Choices: Skills -> Goal: Organize/Compare -> Viz: Chart.js Radar Chart for skill balance, HTML/CSS cards for specifics -> Interaction: Filtering -> Justification: More engaging than a static table. Experience -> Goal: Show Progression -> Viz: Vertical Timeline -> Interaction: Click to expand details -> Justification: Prevents info overload. All interactions via vanilla JS. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <style>
-        body {
-            font-family: 'Be Vietnam Pro', sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-            scroll-behavior: smooth;
-        }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 300px;
-            max-height: 350px;
-        }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 400px;
-                max-height: 400px;
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+    <!-- Cấu hình Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        slate: { 850: '#151e2e', 950: '#020617' },
+                        primary: { 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
             }
         }
-        .timeline-item-content {
-            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
-            overflow: hidden;
-            max-height: 0;
-            opacity: 0;
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 5px; border: 2px solid #0f172a; }
+        .bg-grid-pattern {
+            background-image: linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: linear-gradient(to bottom, transparent, black, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 5%, black 40%, black 70%, transparent 95%);
         }
-        .timeline-item-content.active {
-            max-height: 500px;
-            opacity: 1;
-        }
-        .card-item {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-        .card-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-        }
-        .nav-link {
-            transition: color 0.2s;
-        }
-        .nav-link:hover {
-            color: #0284c7;
-        }
+        /* Styles cho Lightbox */
+        #lightbox { transition: opacity 0.3s ease; }
+        #lightbox.hidden { opacity: 0; pointer-events: none; }
+        #lightbox:not(.hidden) { opacity: 1; pointer-events: auto; }
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-slate-950 text-slate-300 font-sans antialiased selection:bg-primary-500 selection:text-white overflow-x-hidden">
 
-    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 border-b border-slate-200">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex-shrink-0">
-                    <a href="#" class="text-xl font-bold text-slate-800">Nguyễn Văn Hồng</a>
-                </div>
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="#summary" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">Tổng Quan</a>
-                        <a href="#skills" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">Kỹ Năng</a>
-                        <a href="#experience" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">Kinh Nghiệm</a>
-                        <a href="#projects" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">Dự Án</a>
-                        <a href="#education" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">Học Vấn</a>
+    <!-- LIGHTBOX (Phóng to ảnh) -->
+    <div id="lightbox" class="fixed inset-0 z-[100] bg-black/90 hidden flex items-center justify-center p-4 backdrop-blur-sm" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="Zoomed Image" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl border border-slate-700 transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
+        <button class="absolute top-6 right-6 text-white hover:text-primary-500 transition-colors bg-slate-800/50 p-2 rounded-full">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+        <p class="absolute bottom-6 text-slate-400 text-sm">Nhấn ra ngoài hoặc nút X để đóng</p>
+    </div>
+
+    <!-- BACKGROUND EFFECTS -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <div class="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-primary-600/20 rounded-full blur-[128px] animate-pulse-slow"></div>
+        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-[128px] animate-pulse-slow" style="animation-delay: 2s;"></div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <nav class="fixed top-0 w-full bg-slate-950/80 backdrop-blur-xl border-b border-white/5 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer group" onclick="window.scrollTo(0,0)">
+                    <div class="p-2 bg-slate-900 rounded-lg border border-slate-800 group-hover:border-primary-500 transition-colors">
+                        <i data-lucide="layers" class="h-6 w-6 text-primary-400"></i>
                     </div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-xl text-white tracking-tight leading-none font-serif">HONG<span class="text-primary-500">GEO</span></span>
+                        <span class="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Solutions</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex space-x-1">
+                    <a href="#about" class="px-4 py-2 text-sm font-medium rounded-full hover:bg-slate-900 hover:text-white transition-colors">Về tôi</a>
+                    <a href="#experience" class="px-4 py-2 text-sm font-medium rounded-full hover:bg-slate-900 hover:text-white transition-colors">Kinh nghiệm</a>
+                    <a href="#projects" class="px-4 py-2 text-sm font-medium rounded-full hover:bg-slate-900 hover:text-white transition-colors">Dự án</a>
+                    <a href="#research" class="px-4 py-2 text-sm font-medium rounded-full hover:bg-slate-900 hover:text-white transition-colors">Nghiên cứu</a>
+                    <a href="#contact" class="px-4 py-2 text-sm font-medium rounded-full bg-white/5 hover:bg-primary-600 text-white transition-all border border-white/10">Liên hệ</a>
                 </div>
                 <div class="md:hidden">
-                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500">
-                        <span class="sr-only">Open main menu</span>
-                        <svg class="h-6 w-6" id="menu-icon-open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                        <svg class="h-6 w-6 hidden" id="menu-icon-close" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                    <button id="mobile-menu-btn" class="text-slate-300 hover:text-white p-2"><i data-lucide="menu"></i></button>
                 </div>
             </div>
-            <div id="mobile-menu" class="md:hidden hidden">
-                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                    <a href="#summary" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-slate-600">Tổng Quan</a>
-                    <a href="#skills" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-slate-600">Kỹ Năng</a>
-                    <a href="#experience" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-slate-600">Kinh Nghiệm</a>
-                    <a href="#projects" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-slate-600">Dự Án</a>
-                    <a href="#education" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-slate-600">Học Vấn</a>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-900 border-b border-slate-800">
+            <div class="px-4 py-4 space-y-2">
+                <a href="#about" class="block w-full px-3 py-2 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">Về tôi</a>
+                <a href="#experience" class="block w-full px-3 py-2 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">Kinh nghiệm</a>
+                <a href="#projects" class="block w-full px-3 py-2 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">Dự án</a>
+                <a href="#contact" class="block w-full px-3 py-2 text-base font-medium text-primary-400 hover:bg-slate-800 rounded-lg">Liên hệ</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden z-10" id="about">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div class="flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20">
+                <div class="flex-1 text-center lg:text-left space-y-8">
+                    <div class="inline-flex items-center px-4 py-1.5 rounded-full border border-primary-500/30 bg-primary-500/10 text-primary-300 text-sm font-semibold tracking-wide backdrop-blur-sm">
+                        <span class="relative flex h-2 w-2 mr-3">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
+                        </span>
+                        Sẵn sàng hợp tác cho dự án mới
+                    </div>
+                    <div>
+                        <h1 class="text-5xl lg:text-7xl font-bold text-white tracking-tight leading-[1.1] font-serif mb-4">
+                            Kiến tạo giải pháp <br/>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-teal-300 to-primary-500">
+                                Geo-Intelligence
+                            </span>
+                        </h1>
+                        <p id="profile-role" class="text-xl lg:text-2xl text-slate-400 font-light max-w-2xl mx-auto lg:mx-0"></p>
+                    </div>
+                    <p id="profile-tagline" class="text-lg text-slate-500 leading-relaxed max-w-2xl mx-auto lg:mx-0 border-l-4 border-slate-700 pl-4"></p>
+                    <div class="flex flex-wrap justify-center lg:justify-start gap-4 pt-2">
+                        <a href="#contact" class="group px-8 py-4 rounded-full bg-white text-slate-950 font-bold transition-all hover:bg-primary-50 hover:scale-105 flex items-center gap-2">
+                            Liên Hệ Tư Vấn
+                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                        <a href="#projects" class="px-8 py-4 rounded-full bg-slate-900 border border-slate-700 text-white font-semibold transition-all hover:border-primary-500 hover:text-primary-400 hover:bg-slate-800">
+                            Xem Portfolio
+                        </a>
+                    </div>
+                    <div id="stats-container" class="grid grid-cols-2 md:grid-cols-4 gap-8 pt-10 border-t border-slate-800/50 mt-4"></div>
+                </div>
+
+                <!-- AVATAR IMAGE -->
+                <div class="flex-shrink-0 relative w-full max-w-[400px] lg:max-w-[480px]">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-primary-600/30 to-purple-500/30 rounded-[2rem] blur-2xl transform rotate-6 animate-pulse-slow"></div>
+                    <div class="relative bg-slate-900 rounded-[2rem] border border-slate-700 p-3 shadow-2xl rotate-3 hover:rotate-0 transition-all duration-500 cursor-zoom-in" onclick="openLightbox('img/avatar.jpg')">
+                        <div class="rounded-[1.5rem] overflow-hidden aspect-[4/5] relative">
+                            <!-- CẬP NHẬT: Đã bỏ class grayscale để ảnh luôn có màu -->
+                            <img id="avatar-img" src="img/avatar.jpg" alt="Nguyen Van Hong" class="w-full h-full object-cover transition-all duration-700" 
+                                onerror="this.src='https://placehold.co/600x750/1e293b/white?text=Hong+GIS'">
+                            <div class="absolute bottom-6 right-6 bg-slate-950/90 backdrop-blur border border-slate-700 p-4 rounded-xl shadow-xl animate-float">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-green-500/20 p-2 rounded-lg text-green-400">
+                                        <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-slate-400 uppercase font-bold tracking-wider">Chứng nhận</p>
+                                        <p class="text-white font-serif font-bold">ThS. MAP, GIS & RS</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </nav>
+        </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        
-        <section id="hero" class="text-center py-12 md:py-16">
-            <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight">NGUYỄN VĂN HỒNG</h1>
-            <p class="mt-4 text-xl md:text-2xl font-semibold text-sky-600">Project Lead | GIS & 3D Spatial Data Expert</p>
-            <div class="mt-8 flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-slate-600">
-                <a href="tel:0397145151" class="hover:text-sky-600 transition-colors">📞 0397145151</a>
-                <span class="hidden sm:inline text-slate-300">|</span>
-                <a href="mailto:nguyenhong1611209@gmail.com" class="hover:text-sky-600 transition-colors">✉️ nguyenhong1611209@gmail.com</a>
-                <span class="hidden sm:inline text-slate-300">|</span>
-                <a href="https://pinky2070500.github.io/Project-Lead---HD-Map/" target="_blank" class="hover:text-sky-600 transition-colors">🌐 Portfolio</a>
+    <!-- EXPERIENCE SECTION -->
+    <section id="experience" class="py-24 bg-slate-900 relative">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl lg:text-4xl font-bold text-white font-serif mb-4">Hành trình Sự nghiệp</h2>
+                <div class="h-1 w-20 bg-primary-500 mx-auto rounded-full"></div>
             </div>
-        </section>
-
-        <section id="summary" class="py-16">
-            <div class="max-w-3xl mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 card-item">
-                <h2 class="text-3xl font-bold text-center text-slate-800 mb-6">Tóm Tắt Năng Lực</h2>
-                <p class="text-base md:text-lg text-slate-600 leading-relaxed text-justify">
-                    Là một chuyên gia về Địa tin học (Geomatics), GIS và Viễn thám, tôi có hơn 3 năm kinh nghiệm dẫn dắt đội ngũ kỹ thuật và quản lý dự án. Năng lực quản lý của tôi bao quát từ việc xây dựng đề xuất (proposal), báo cáo kỹ thuật, quản lý tiến độ, điều phối đa bên cho đến đào tạo và phát triển đội ngũ. Tôi có chuyên môn sâu về xử lý và phân tích các bộ dữ liệu không gian phức tạp, bao gồm <strong class="text-sky-600 font-semibold">Point Cloud (LiDAR), dữ liệu UAV, Photogrammetry, DEM, LULC</strong>, và tích hợp <strong class="text-sky-600 font-semibold">BIM-GIS</strong> để tạo ra các sản phẩm bản đồ 3D chi tiết. Với kinh nghiệm xây dựng quy trình chuẩn hóa dữ liệu và đánh giá độ chính xác bản đồ, tôi thành thạo các công cụ như <strong class="text-amber-600 font-semibold">ArcGIS, QGIS, PostGIS, Google Earth Engine</strong>, và tự động hóa quy trình bằng <strong class="text-amber-600 font-semibold">Python (PyQGIS, GDAL)</strong>. Tôi mong muốn áp dụng những kỹ năng này để đóng góp vào sự phát triển công nghệ bản đồ HD Map cho xe tự lái tại VIETMAP.
-                </p>
+            <div class="relative">
+                <div class="absolute left-4 lg:left-1/2 top-0 bottom-0 w-0.5 bg-slate-800"></div>
+                <div class="space-y-12" id="experience-container"></div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="skills" class="py-16">
-            <h2 class="text-3xl font-bold text-center text-slate-800 mb-12">Hệ Thống Kỹ Năng</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div class="chart-container">
-                    <canvas id="skillsRadarChart"></canvas>
+    <!-- SERVICES SECTION -->
+    <section id="services" class="py-24 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid lg:grid-cols-3 gap-12 items-start">
+                <div class="lg:col-span-1 sticky top-24">
+                    <h2 class="text-3xl lg:text-4xl font-bold text-white font-serif mb-6 leading-tight">Giải pháp chuyên sâu <br/> cho vấn đề liên quan tới GIS & Viễn thám</h2>
+                    <p class="text-slate-400 mb-8 leading-relaxed">Với nền tảng học thuật và kinh nghiệm thực chiến, tôi cung cấp các dịch vụ tư vấn và phát triển công nghệ chất lượng cao.</p>
+                    <a href="#contact" class="text-primary-400 font-semibold hover:text-white transition-colors flex items-center gap-2">Liên hệ để làm rõ <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
                 </div>
+                <div class="lg:col-span-2 grid sm:grid-cols-2 gap-6">
+                    <div class="bg-slate-900/50 p-8 rounded-2xl border border-slate-800 hover:border-primary-500/50 hover:bg-slate-900 transition-all group">
+                        <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 mb-6 group-hover:scale-110 transition-transform"><i data-lucide="globe" class="w-6 h-6"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-3">WebGIS Development</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Xây dựng hệ thống bản đồ trực tuyến trọn gói (Fullstack) với hiệu năng cao, tích hợp dashboard phân tích dữ liệu không gian.</p>
+                    </div>
+                    <div class="bg-slate-900/50 p-8 rounded-2xl border border-slate-800 hover:border-green-500/50 hover:bg-slate-900 transition-all group">
+                        <div class="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center text-green-400 mb-6 group-hover:scale-110 transition-transform"><i data-lucide="satellite" class="w-6 h-6"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-3">Remote Sensing Analysis</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Xử lý ảnh vệ tinh (Landsat, Sentinel, ...), phân tích biến động rừng, đô thị hóa, thiên tai, ... sử dụng Google Earth Engine.</p>
+                    </div>
+                    <div class="bg-slate-900/50 p-8 rounded-2xl border border-slate-800 hover:border-purple-500/50 hover:bg-slate-900 transition-all group">
+                        <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 mb-6 group-hover:scale-110 transition-transform"><i data-lucide="database" class="w-6 h-6"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-3">Database Architecture</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Thiết kế và tối ưu hóa cơ sở dữ liệu không gian (PostGIS), chuẩn hóa dữ liệu địa lý cho doanh nghiệp và cơ quan nhà nước.</p>
+                    </div>
+                    <div class="bg-slate-900/50 p-8 rounded-2xl border border-slate-800 hover:border-orange-500/50 hover:bg-slate-900 transition-all group">
+                        <div class="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-400 mb-6 group-hover:scale-110 transition-transform"><i data-lucide="presentation" class="w-6 h-6"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-3">Training & Consulting</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Đào tạo nhân sự sử dụng phần mềm GIS & RS (GEE, QGIS), tư vấn giải pháp chuyển đổi số trong quản lý đô thị.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SKILLS SECTION -->
+    <section class="py-24 bg-slate-900 border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-white font-serif mb-12 text-center">Tech Stack & Công cụ</h2>
+            <div id="skills-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6"></div>
+        </div>
+    </section>
+
+    <!-- PROJECTS SECTION -->
+    <section id="projects" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                 <div>
-                    <div id="skills-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    </div>
+                    <span class="text-primary-500 font-bold tracking-widest uppercase text-xs mb-2 block">Portfolio</span>
+                    <h2 class="text-3xl lg:text-4xl font-bold text-white font-serif">Dự án Tiêu biểu</h2>
                 </div>
+                <div class="flex flex-wrap gap-2 p-1 bg-slate-900 rounded-lg border border-slate-800" id="project-tabs"></div>
             </div>
-        </section>
+            <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </div>
+    </section>
 
-        <section id="experience" class="py-16">
-            <h2 class="text-3xl font-bold text-center text-slate-800 mb-12">Hành Trình Sự Nghiệp</h2>
-            <div id="timeline-container" class="relative max-w-3xl mx-auto">
-                <div class="absolute left-4 md:left-1/2 md:-translate-x-1/2 h-full w-0.5 bg-slate-200"></div>
-            </div>
-        </section>
+    <!-- RESEARCH & AWARDS SECTION -->
+    <section id="research" class="py-24 bg-slate-900 relative overflow-hidden">
+        <div class="absolute right-0 top-0 w-1/3 h-full bg-slate-800/20 skew-x-12 pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-16">
+                
+                <!-- Awards Column (Đã cập nhật ảnh) -->
+                <div>
+                    <h2 class="text-3xl font-bold text-white font-serif mb-8 flex items-center gap-3">
+                        <i data-lucide="award" class="text-yellow-500"></i> Vinh danh & Giải thưởng
+                    </h2>
+                    <div class="grid gap-6">
+                        <!-- Award 1: UBND -->
+                        <div class="bg-slate-950 p-6 rounded-xl border border-slate-800 flex gap-4 items-center shadow-lg hover:border-yellow-500/50 transition-colors cursor-pointer" onclick="openLightbox('img/BangKhenUBND.jpg')">
+                            <div class="flex-shrink-0 w-16 h-16 bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+                                <img src="img/BangKhenUBND.jpg" alt="Bang Khen UBND" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=UBND'">
+                            </div>
+                            <div>
+                                <h3 class="text-white font-bold text-lg">Bằng khen UBND TP.HCM</h3>
+                                <p class="text-slate-400 text-sm">Thành tích xuất sắc năm 2025</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Award 2: Đoàn viên (Thay thế Eureka) -->
+                        <div class="bg-slate-950 p-6 rounded-xl border border-slate-800 flex gap-4 items-center shadow-lg hover:border-blue-500/50 transition-colors cursor-pointer" onclick="openLightbox('img/GiayKhenDoanVien.jpg')">
+                            <div class="flex-shrink-0 w-16 h-16 bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+                                <img src="img/GiayKhenDoanVien.jpg" alt="Giay Khen Doan" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=DoanVien'">
+                            </div>
+                            <div>
+                                <h3 class="text-white font-bold text-lg">Giấy khen Đoàn viên Xuất sắc</h3>
+                                <p class="text-slate-400 text-sm">Thành tích hoạt động phong trào</p>
+                            </div>
+                        </div>
+                    </div>
 
-        <section id="projects" class="py-16">
-             <h2 class="text-3xl font-bold text-center text-slate-800 mb-12">Dự Án Tiêu Biểu</h2>
-             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="md:col-span-2 bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-sky-200 card-item">
-                    <h3 class="text-xl md:text-2xl font-bold text-sky-700">WebGIS Tích Hợp BIM-GIS Cho Nhà Ga Metro Số 1, TP.HCM</h3>
-                    <p class="mt-2 text-sm text-slate-500">Vai trò: Project Lead & Technical Architect</p>
-                    <p class="mt-4 text-slate-600 leading-relaxed">
-                        Dẫn dắt đội ngũ thiết kế và triển khai hệ thống WebGIS 3D đột phá, phục vụ công tác quản lý và vận hành tài sản cho nhà ga Metro. Dự án thành công trong việc trực quan hóa dữ liệu phức tạp, kết hợp mô hình BIM chi tiết với bối cảnh GIS rộng lớn, mang lại hiệu quả cao trong việc ra quyết định.
-                    </p>
-                    <div class="mt-6">
-                        <h4 class="font-semibold text-slate-700 mb-3">Công nghệ nổi bật:</h4>
-                        <div class="flex flex-wrap gap-3">
-                            <span class="bg-sky-100 text-sky-800 text-sm font-medium px-3 py-1 rounded-full">React & NestJS</span>
-                            <span class="bg-sky-100 text-sky-800 text-sm font-medium px-3 py-1 rounded-full">MapLibre</span>
-                            <span class="bg-amber-100 text-amber-800 text-sm font-medium px-3 py-1 rounded-full">Point Cloud to GLB/GLTF</span>
-                            <span class="bg-sky-100 text-sky-800 text-sm font-medium px-3 py-1 rounded-full">PostgreSQL/PostGIS</span>
+                    <!-- Degrees Mini Gallery (Đã cập nhật ảnh) -->
+                    <div class="mt-10 pt-10 border-t border-slate-800">
+                        <h3 class="text-slate-300 font-semibold mb-4 text-sm uppercase tracking-wide">Hồ sơ Học vấn & Chứng chỉ</h3>
+                        <div class="grid grid-cols-4 gap-4">
+                            <!-- Bằng Thạc Sĩ -->
+                            <div class="group cursor-pointer" onclick="openLightbox('img/BangThacSi.jpg')">
+                                <div class="aspect-[3/4] rounded-lg overflow-hidden border border-slate-700 relative">
+                                    <img src="img/BangThacSi.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/300x400?text=ThacSi'">
+                                    <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                        <i data-lucide="zoom-in" class="text-white"></i>
+                                    </div>
+                                </div>
+                                <p class="text-[10px] text-center mt-2 text-slate-400">Thạc sĩ</p>
+                            </div>
+                            
+                            <!-- Bằng Kỹ Sư -->
+                            <div class="group cursor-pointer" onclick="openLightbox('img/BangKySu.jpg')">
+                                <div class="aspect-[3/4] rounded-lg overflow-hidden border border-slate-700 relative">
+                                    <img src="img/BangKySu.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/300x400?text=KySu'">
+                                    <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                        <i data-lucide="zoom-in" class="text-white"></i>
+                                    </div>
+                                </div>
+                                <p class="text-[10px] text-center mt-2 text-slate-400">Kỹ sư</p>
+                            </div>
+
+                            <!-- Chức danh Giảng viên -->
+                            <div class="group cursor-pointer" onclick="openLightbox('img/ChucDanhGiangVien.jpg')">
+                                <div class="aspect-[3/4] rounded-lg overflow-hidden border border-slate-700 relative">
+                                    <img src="img/ChucDanhGiangVien.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/300x400?text=GiangVien'">
+                                    <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                        <i data-lucide="zoom-in" class="text-white"></i>
+                                    </div>
+                                </div>
+                                <p class="text-[10px] text-center mt-2 text-slate-400">Giảng viên</p>
+                            </div>
+
+                            <!-- Chức danh Công nghệ -->
+                            <div class="group cursor-pointer" onclick="openLightbox('img/ChucDanhCongNghe.jpg')">
+                                <div class="aspect-[3/4] rounded-lg overflow-hidden border border-slate-700 relative">
+                                    <img src="img/ChucDanhCongNghe.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/300x400?text=ChuyenGia'">
+                                    <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                        <i data-lucide="zoom-in" class="text-white"></i>
+                                    </div>
+                                </div>
+                                <p class="text-[10px] text-center mt-2 text-slate-400">CNTT</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 card-item">
-                    <h3 class="text-lg md:text-xl font-bold text-sky-700">Hệ thống GIS Y tế & Môi trường</h3>
-                    <p class="mt-1 text-sm text-slate-500">Vai trò: GIS & Web Developer</p>
-                    <p class="mt-3 text-slate-600">Xây dựng các hệ thống GIS phục vụ phòng chống dịch bệnh, quản lý y tế học đường và giám sát chất lượng nước cho các Sở ban ngành TP.HCM.</p>
-                </div>
-                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 card-item">
-                    <h3 class="text-lg md:text-xl font-bold text-sky-700">Hệ thống Quản lý Bảo vệ Rừng</h3>
-                    <p class="mt-1 text-sm text-slate-500">Vai trò: GIS Developer</p>
-                    <p class="mt-3 text-slate-600">Tư vấn và triển khai hệ thống GIS cho Ban QLR Phòng hộ Bình Chánh - Củ Chi, ứng dụng viễn thám để theo dõi biến động rừng.</p>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 card-item">
-                    <h3 class="text-lg md:text-xl font-bold text-sky-700">Kiến trúc tổng thể GIS TP.HCM</h3>
-                    <p class="mt-1 text-sm text-slate-500">Vai trò: GIS Professional</p>
-                    <p class="mt-3 text-slate-600">Xây dựng báo cáo kiến trúc tổng thể, chi tiết hệ thống GIS và Viễn thám trong quản lý đất đai, quy hoạch cho Sở KH&CN.</p>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 card-item">
-                    <h3 class="text-lg md:text-xl font-bold text-sky-700">Bản đồ nền HCMGIS MAP</h3>
-                    <p class="mt-1 text-sm text-slate-500">Vai trò: GIS Developer</p>
-                    <p class="mt-3 text-slate-600">Thu thập, chuẩn hóa và xây dựng dữ liệu bản đồ nền dùng chung cho các dự án của trung tâm từ nguồn dữ liệu mở.</p>
-                </div>
-             </div>
-        </section>
 
-        <section id="education" class="py-16">
-            <h2 class="text-3xl font-bold text-center text-slate-800 mb-12">Học Vấn & Thành Tích</h2>
-            <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 card-item">
-                    <h3 class="text-xl font-bold text-slate-800">Học Vấn</h3>
-                    <div class="mt-4 space-y-4">
-                        <div>
-                            <p class="font-semibold text-sky-700">Thạc sĩ, ngành Bản đồ, Viễn thám và GIS</p>
-                            <p class="text-sm text-slate-500">Trường Đại học Bách khoa TP.HCM (2020 - 2023)</p>
+                <!-- Research Column -->
+                <div>
+                    <h2 class="text-3xl font-bold text-white font-serif mb-8 flex items-center gap-3">
+                        <i data-lucide="book-open" class="text-purple-500"></i> Công bố Khoa học
+                    </h2>
+                    <div id="research-container" class="space-y-4"></div>
+                    <div class="mt-8 p-6 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl border border-slate-700">
+                        <div class="flex gap-4">
+                            <i data-lucide="quote" class="text-slate-600 flex-shrink-0"></i>
+                            <p class="text-slate-300 italic text-sm leading-relaxed">"Mục tiêu của tôi là ứng dụng công nghệ Viễn thám và GIS để giải quyết các vấn đề cấp bách của đô thị như dịch bệnh, ngập lụt, ... và quản lý tài nguyên, hướng tới mô hình Thành phố Thông minh bền vững."</p>
                         </div>
-                        <div>
-                            <p class="font-semibold text-sky-700">Kỹ sư, ngành Trắc địa và Bản đồ</p>
-                            <p class="text-sm text-slate-500">Trường Đại học Bách khoa TP.HCM (2016 - 2020)</p>
+                        <div class="mt-4 flex justify-end">
+                            <span class="text-sm font-bold text-white font-serif">- Nguyễn Văn Hồng</span>
                         </div>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 card-item">
-                    <h3 class="text-xl font-bold text-slate-800">Giải Thưởng & Công Trình</h3>
-                     <ul class="mt-4 space-y-3 list-disc list-inside text-slate-600">
-                        <li><span class="font-semibold">Bằng khen của Chủ tịch UBND TP.HCM</span> vì có thành tích xuất sắc (2023-2024).</li>
-                        <li><span class="font-semibold">02 bài báo khoa học quốc tế</span> và nhiều bài báo trong nước.</li>
-                        <ul class="ml-6 mt-1 space-y-1 text-sm list-[circle]">
-                           <li>Analyzing and evaluating salinity intrusion in the Mekong River delta...</li>
-                           <li>Urban Expansion in Ho Chi Minh City Detected from Landsat Satellite Images.</li>
-                        </ul>
-                    </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer id="contact" class="bg-slate-950 pt-24 pb-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-16 mb-16">
+                <div>
+                    <h2 class="text-4xl lg:text-5xl font-bold text-white font-serif mb-6">Let's work together.</h2>
+                    <p class="text-slate-400 text-lg mb-8 max-w-md">Bạn có dự án về GIS & RS, Bản đồ số hay cần tư vấn giải pháp công nghệ? Hãy liên hệ với tôi.</p>
+                    <div class="flex gap-4">
+                        <!-- <a href="#" class="w-12 h-12 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:border-primary-500 hover:bg-primary-600 transition-all"><i data-lucide="linkedin"></i></a>
+                        <a href="#" class="w-12 h-12 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:border-primary-500 hover:bg-primary-600 transition-all"><i data-lucide="github"></i></a> -->
+                        <a href="https://www.facebook.com/hong.nam1611209/" class="w-12 h-12 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:border-primary-500 hover:bg-primary-600 transition-all"><i data-lucide="facebook"></i></a>
+                    </div>
+                </div>
+                <div class="grid gap-6">
+                    <a id="contact-email" href="#" class="group block bg-slate-900 p-6 rounded-2xl border border-slate-800 hover:border-primary-500 transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-primary-500/10 p-3 rounded-xl text-primary-400 group-hover:text-white group-hover:bg-primary-500 transition-colors"><i data-lucide="mail" class="w-6 h-6"></i></div>
+                            <div>
+                                <p class="text-sm text-slate-500 font-semibold uppercase tracking-wider">Email</p>
+                                <p class="text-white text-lg font-medium email-text">loading...</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a id="contact-phone" href="#" class="group block bg-slate-900 p-6 rounded-2xl border border-slate-800 hover:border-green-500 transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="bg-green-500/10 p-3 rounded-xl text-green-400 group-hover:text-white group-hover:bg-green-500 transition-colors"><i data-lucide="phone" class="w-6 h-6"></i></div>
+                            <div>
+                                <p class="text-sm text-slate-500 font-semibold uppercase tracking-wider">Điện thoại / Zalo</p>
+                                <p class="text-white text-lg font-medium phone-text">loading...</p>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="block bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                         <div class="flex items-center gap-4">
+                            <div class="bg-red-500/10 p-3 rounded-xl text-red-400"><i data-lucide="map-pin" class="w-6 h-6"></i></div>
+                            <div>
+                                <p class="text-sm text-slate-500 font-semibold uppercase tracking-wider">Địa chỉ</p>
+                                <p class="text-white text-lg font-medium" id="contact-location">loading...</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
-
-    </main>
-    
-    <footer class="bg-slate-800 text-white">
-        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
-            <p class="font-bold text-lg">Cảm ơn đã xem xét hồ sơ của tôi.</p>
-            <p class="mt-2 text-slate-300">Sẵn sàng trao đổi thêm về cơ hội tại VIETMAP.</p>
+            <div class="border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-slate-600 text-sm">© 2026 Nguyễn Văn Hồng. All Rights Reserved.</p>
+                <div class="text-slate-700 text-sm flex gap-4"><span>Designed by Hong</span></div>
+            </div>
         </div>
     </footer>
 
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            
-            const skillsData = {
-                labels: ['Quản lý Dự án', 'Dữ liệu 3D & HD Map', 'GIS & WebGIS', 'Lập trình'],
-                datasets: [{
-                    label: 'Mức độ thành thạo',
-                    data: [90, 95, 85, 88],
-                    backgroundColor: 'rgba(2, 132, 199, 0.2)',
-                    borderColor: 'rgba(2, 132, 199, 1)',
-                    pointBackgroundColor: 'rgba(2, 132, 199, 1)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgba(2, 132, 199, 1)'
-                }]
-            };
+        // Lightbox Logic
+        function openLightbox(src) {
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            img.src = src;
+            lightbox.classList.remove('hidden');
+        }
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.add('hidden');
+        }
 
-            const skillsList = [
-                { name: 'LiDAR & Point Cloud' },
-                { name: 'Python (PyQGIS)' },
-                { name: 'React & NestJS' },
-                { name: 'BIM-GIS Integration' },
-                { name: 'ArcGIS & QGIS' },
-                { name: 'PostgreSQL/PostGIS' },
-                { name: 'Project Planning' },
-                { name: 'Team Leadership' },
-                { name: 'Quality Assurance' },
-            ];
-
-            const experienceData = [
+        // Dữ liệu
+        const DATA = {
+            profile: {
+                name: "Nguyễn Văn Hồng",
+                role: "ThS. Giảng viên GIS & Viễn thám | Fullstack WebGIS Architect",
+                tagline: "Kết nối Nghiên cứu Học thuật & Giải pháp Thực tiễn cho Đô thị Thông minh",
+                phone: "0397145151",
+                email: "nguyenhong1611209@gmail.com",
+                location: "TP. Hồ Chí Minh, Việt Nam",
+                stats: [
+                    { label: "Kinh nghiệm", value: "06 Năm" },
+                    { label: "Dự án GIS", value: "20+" },
+                    { label: "Công bố Quốc tế", value: "04" },
+                    { label: "Giải thưởng", value: "03" }
+                ]
+            },
+            experience: [
                 {
-                    role: 'GIS & RS Manager',
-                    company: 'HCMGIS',
-                    time: '01/2022 - Hiện tại',
-                    details: [
-                        'Lãnh đạo và quản lý đội ngũ kỹ sư, giám sát tiến độ và đảm bảo chất lượng dự án.',
-                        'Chịu trách nhiệm chính về kỹ thuật, đưa ra các quyết định về công nghệ và kiến trúc hệ thống.',
-                        'Trực tiếp phát triển các công cụ tự động hóa bằng Python (PyQGIS) để tối ưu hóa quy trình.',
-                        'Dẫn dắt dự án "WebGIS tích hợp BIM-GIS cho nhà ga Metro số 1".'
-                    ]
+                    period: "2024 - Nay",
+                    role: "Giảng viên GIS & Viễn Thám",
+                    org: "Trường Đại học Sư Phạm TP.HCM",
+                    desc: "Giảng dạy lý thuyết và thực hành, hướng dẫn sinh viên nghiên cứu khoa học về GIS và Viễn thám."
                 },
                 {
-                    role: 'WebGIS Fullstack Developer',
-                    company: 'HCMGIS',
-                    time: '06/2019 - 12/2021',
-                    details: [
-                        'Tham gia toàn bộ vòng đời phát triển dự án WebGIS, từ thu thập yêu cầu đến triển khai.',
-                        'Xây dựng thành công các hệ thống WebGIS cộng đồng: phòng chống sốt xuất huyết, y tế học đường, giám sát chất lượng nước.',
-                        'Chịu trách nhiệm xây dựng và chuẩn hóa dữ liệu bản đồ nền (Basemap) cho TP.HCM.'
-                    ]
+                    period: "01/2022 - Nay",
+                    role: "WebGIS Fullstack Dev & Chuyên gia GIS",
+                    org: "HCMGIS (Trung tâm Ứng dụng GIS TP.HCM)",
+                    desc: "Xây dựng kiến trúc hệ thống, phát triển ứng dụng WebGIS (Yii2, MapLibre, Leaflet, ...), xử lý dữ liệu ảnh vệ tinh (GEE) phục vụ các sở ban ngành."
                 },
                 {
-                    role: 'Giảng viên GIS & Viễn thám',
-                    company: 'ĐH Sư phạm TP.HCM',
-                    time: '2024 - Hiện tại',
-                    details: [
-                        'Giảng dạy các học phần lý thuyết và thực hành về GIS, Viễn thám.',
-                        'Hướng dẫn sinh viên thực hiện các đề tài nghiên cứu khoa học ứng dụng.'
-                    ]
+                    period: "06/2019 - 12/2021",
+                    role: "Quản lý Dự án & Tư vấn Giải pháp",
+                    org: "HCMGIS (Trung tâm Ứng dụng GIS TP.HCM)",
+                    desc: "Viết thuyết minh dự án, lập dự toán, quản lý tiến độ và triển khai hệ thống GIS."
                 }
-            ];
-
-            const ctx = document.getElementById('skillsRadarChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'radar',
-                data: skillsData,
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
-                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
-                            pointLabels: { font: { size: 12, weight: '500' }, color: '#334155' },
-                            ticks: {
-                                backdropColor: 'transparent',
-                                color: '#64748b',
-                                stepSize: 25,
-                                display: false
-                            },
-                            suggestedMin: 0,
-                            suggestedMax: 100
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
+            ],
+            skills: [
+                { category: "GIS & Remote Sensing", items: ["QGIS", "Google Earth Engine", "GDAL/OGR", "Spatial Analysis", "..."] },
+                { category: "Web Development", items: ["PHP (Yii2 - MVC)", "SQL", "JavaScript", "Leaflet/MapLibre", "..."] },
+                { category: "Database & DevOps", items: ["PostgreSQL (PostGIS)", "GeoServer", "GitLab CI/CD", "Apache/Tomcat", "..."] },
+                { category: "Management", items: ["Quản lý dự án", "Tư vấn giải pháp", "Giảng dạy & Đào tạo", "Viết báo cáo khoa học", "..."] },
+                { category: "Artificial intelligence", items: ["ML (Random Forest)", "NLP", "PyTorch", "SAM (Segment)", "..."] }
+            ],
+            projects: [
+                {
+                    id: 1,
+                    category: "Smart Health",
+                    title: "Hệ thống Quản lý Dịch bệnh Sốt xuất huyết & Bệnh truyền nhiễm TP.HCM",
+                    role: "PM & Fullstack Dev",
+                    tech: ["Yii2", "PostGIS", "Leaflet", "GeoServer"],
+                    desc: "Hệ thống lõi phục vụ HCDC giám sát ổ dịch theo thời gian thực. Tích hợp phân tích không gian để cảnh báo sớm vùng nguy cơ.",
+                    link: "https://pcd3.hcmgis.vn",
+                    image: "img/Hệ thống Quản lý Dịch bệnh Sốt xuất huyết & Bệnh truyền nhiễm TP.HCM.jpg" 
+                },
+                {
+                    id: 2,
+                    category: "Environment",
+                    title: "WebGIS Quản lý Rừng phòng hộ Bình Chánh – Củ Chi",
+                    role: "Lead Developer",
+                    tech: ["Google Earth Engine", "Yii2", "JavaScript"],
+                    desc: "Tự động hóa quy trình theo dõi biến động rừng bằng ảnh vệ tinh Sentinel/Landsat. Hỗ trợ ban quản lý cập nhật hiện trạng rừng.",
+                    link: "https://quanlyrung.hcmgis.vn",
+                    image: "img/WebGIS Quản lý Rừng phòng hộ Bình Chánh – Củ Chi.jpg"
+                },
+                {
+                    id: 3,
+                    category: "Urban Planning",
+                    title: "HCMGIS Base Map & Hạ tầng dữ liệu không gian",
+                    role: "System Architect",
+                    tech: ["OGC", "SLD", "GeoServer"],
+                    desc: "Xây dựng bản đồ nền chuẩn hóa cho TP.HCM (tương tự Google Maps), phục vụ làm nền tảng dùng chung cho các sở ban ngành.",
+                    link: "http://maps.hcmgis.vn",
+                    image: "img/HCMGIS Base Map & Hạ tầng dữ liệu không gian.jpg"
+                },
+                {
+                    id: 4,
+                    category: "Urban Planning",
+                    title: "Kiến trúc CSDL Đất đai & Quy hoạch Xây dựng",
+                    role: "Consultant",
+                    tech: ["Enterprise Architect", "TOGAF", "GIS & RS"],
+                    desc: "Tư vấn và thiết kế kiến trúc tổng thể hệ thống GIS quản lý đất đai, quy hoạch và xây dựng cho TP.HCM.",
+                    link: "https://mae.gov.vn/vien-tham/tphcm-ung-dung-vien-tham-phuc-vu-quan-ly-dat-dai-quy-hoach-va-xay-dung-16477.htm",
+                    image: "img/Kiến trúc CSDL Đất đai & Quy hoạch Xây dựng.jpg"
+                },
+                 {
+                    id: 5,
+                    category: "Environment",
+                    title: "Hệ thống Giám sát Chất lượng Nước sạch",
+                    role: "Fullstack Dev",
+                    tech: ["Yii2", "ChartJS", "PostGIS"],
+                    desc: "Hệ thống thu thập và trực quan hóa dữ liệu quan trắc mẫu nước sinh hoạt trên toàn địa bàn thành phố.",
+                    link: "https://gsnc.hcmgis.vn",
+                    image: "img/Hệ thống Giám sát Chất lượng Nước sạch.jpg"
+                },
+                {
+                    id: 6,
+                    category: "Urban Planning",
+                    title: "BIM & GIS cho Dự án Vành đai 3 TP.HCM",
+                    role: "Researcher & GIS Expert",
+                    tech: ["BIM/CIM", "GLB", "WebGL", "3D GIS"],
+                    desc: "Nghiên cứu ứng dụng tích hợp mô hình BIM và GIS để quản lý thông minh quá trình thi công dự án đường Vành đai 3.",
+                    link: "https://bim-metro.hcmgis.vn/frontpage/",
+                    image: "img/BIM & GIS cho Dự án Vành đai 3 TP.HCM.jpg"
                 }
-            });
+            ],
+            research: [
+                {
+                    title: "Urban Expansion in Ho Chi Minh City Detected from Landsat Satellite Images",
+                    journal: "Springer, 2024",
+                    link: "https://link.springer.com/chapter/10.1007/978-981-99-7434-4_184"
+                },
+                {
+                    title: "Analyzing and evaluating salinity intrusion in the Mekong River delta using Landsat images",
+                    journal: "IOP Science, 2025",
+                    link: "https://iopscience.iop.org/article/10.1088/1755-1315/1501/1/012004"
+                },
+                {
+                    title: "Ứng dụng thư viện Amcharts vào thiết kế WebGIS kinh tế – xã hội TP.HCM",
+                    journal: "Hội thảo GIS Toàn quốc, 2020",
+                    link: "#"
+                }
+            ]
+        };
 
-            const skillsGrid = document.getElementById('skills-grid');
-            skillsList.forEach(skill => {
-                const skillEl = document.createElement('div');
-                skillEl.className = 'card-item bg-white p-3 rounded-lg text-center shadow-sm border border-slate-200';
-                skillEl.innerHTML = `<p class="font-semibold text-slate-700 text-xs md:text-sm">${skill.name}</p>`;
-                skillsGrid.appendChild(skillEl);
-            });
+        // Render Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('profile-role').innerText = DATA.profile.role;
+            document.getElementById('profile-tagline').innerText = DATA.profile.tagline;
+            document.getElementById('stats-container').innerHTML = DATA.profile.stats.map(s => `
+                <div class="text-center lg:text-left p-4 bg-slate-900/50 rounded-xl border border-slate-800">
+                    <div class="text-3xl font-bold text-white font-serif mb-1">${s.value}</div>
+                    <div class="text-xs text-slate-500 uppercase tracking-wider font-semibold">${s.label}</div>
+                </div>
+            `).join('');
 
-            const timelineContainer = document.getElementById('timeline-container');
-            experienceData.forEach((item, index) => {
-                const itemEl = document.createElement('div');
-                itemEl.className = `relative mb-8 timeline-item`;
-                
-                const contentHTML = `
-                    <div class="relative ml-10 md:ml-0 md:w-1/2 ${index % 2 === 0 ? 'md:ml-auto md:pl-10' : 'md:mr-auto md:pr-10'}">
-                        <div class="cursor-pointer bg-white p-6 rounded-xl shadow-sm border border-slate-200 w-full card-item">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="font-bold text-sky-700 text-lg">${item.role}</p>
-                                    <p class="font-semibold text-slate-600">${item.company}</p>
-                                    <p class="text-sm text-slate-400 mt-1">${item.time}</p>
-                                </div>
-                                <div class="toggle-icon text-slate-400 text-2xl font-thin">+</div>
-                            </div>
-                            <div class="timeline-item-content mt-4 border-t border-slate-200 pt-4">
-                                <ul class="space-y-2 list-disc list-inside text-slate-600">
-                                    ${item.details.map(d => `<li>${d}</li>`).join('')}
-                                </ul>
-                            </div>
+            document.getElementById('experience-container').innerHTML = DATA.experience.map(job => `
+                <div class="relative flex flex-col lg:flex-row gap-8 lg:gap-16 items-start group">
+                    <div class="hidden lg:block absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-slate-800 border-2 border-slate-600 z-10 group-hover:bg-primary-500 group-hover:border-primary-300 transition-colors"></div>
+                    <div class="absolute lg:hidden left-4 -translate-x-[7px] w-4 h-4 rounded-full bg-slate-800 border-2 border-slate-600 z-10"></div>
+                    <div class="lg:w-1/2 lg:text-right pl-12 lg:pl-0 lg:pr-12">
+                        <span class="inline-block px-3 py-1 bg-slate-800 text-primary-400 rounded-md text-sm font-bold mb-2 border border-slate-700">${job.period}</span>
+                    </div>
+                    <div class="lg:w-1/2 pl-12 lg:pl-12 w-full">
+                        <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 hover:border-primary-500/30 transition-all hover:bg-slate-800">
+                            <h3 class="text-xl font-bold text-white mb-1 group-hover:text-primary-400 transition-colors">${job.role}</h3>
+                            <h4 class="text-slate-400 font-serif mb-4 text-sm">${job.org}</h4>
+                            <p class="text-slate-400 leading-relaxed text-sm">${job.desc}</p>
                         </div>
                     </div>
-                    <div class="absolute top-5 left-4 -ml-2.5 md:left-1/2 md:-ml-2.5 w-5 h-5 bg-white border-4 border-sky-500 rounded-full"></div>
-                `;
-                itemEl.innerHTML = contentHTML;
-                timelineContainer.appendChild(itemEl);
-            });
-            
-            timelineContainer.addEventListener('click', function(e) {
-                const header = e.target.closest('.cursor-pointer');
-                if (header) {
-                    const content = header.querySelector('.timeline-item-content');
-                    const icon = header.querySelector('.toggle-icon');
-                    const wasActive = content.classList.contains('active');
+                </div>
+            `).join('');
 
-                    document.querySelectorAll('.timeline-item-content.active').forEach(activeContent => {
-                        activeContent.classList.remove('active');
-                        activeContent.closest('.cursor-pointer').querySelector('.toggle-icon').textContent = '+';
-                    });
-                    
-                    if (!wasActive) {
-                        content.classList.add('active');
-                        icon.textContent = '-';
-                    }
-                }
-            });
+            /* TÌM VÀ THAY THẾ ĐOẠN JS RENDER SKILLS (Khoảng dòng 513) */
+document.getElementById('skills-container').innerHTML = DATA.skills.map(group => `
+    <div class="h-full flex flex-col bg-slate-950 rounded-2xl p-6 border border-slate-800 hover:border-primary-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-primary-900/20 hover:-translate-y-1 group">
+        <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-800 group-hover:border-primary-500/30 transition-colors">
+             <div class="p-2 rounded-lg bg-slate-900 group-hover:bg-primary-500/10 transition-colors">
+                <i data-lucide="layers" class="w-5 h-5 text-slate-400 group-hover:text-primary-500 transition-colors"></i>
+             </div>
+             <h3 class="text-base font-bold text-white uppercase tracking-wide">${group.category}</h3>
+        </div>
+        <ul class="space-y-3 flex-1">
+            ${group.items.map(item => `
+                <li class="flex items-start text-slate-400 group-hover:text-slate-200 transition-colors text-sm">
+                    <i data-lucide="check-circle-2" class="w-4 h-4 text-primary-500 mr-2.5 mt-0.5 flex-shrink-0"></i>
+                    <span class="leading-tight">${item}</span>
+                </li>
+            `).join('')}
+        </ul>
+    </div>
+`).join('');
 
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const menuIconOpen = document.getElementById('menu-icon-open');
-            const menuIconClose = document.getElementById('menu-icon-close');
+            document.getElementById('research-container').innerHTML = DATA.research.map(paper => `
+                <a href="${paper.link}" target="_blank" class="block bg-slate-950 p-6 rounded-xl border border-slate-800 hover:bg-slate-900 hover:border-purple-500/50 transition-all group">
+                    <h3 class="text-white font-bold mb-2 group-hover:text-purple-400 transition-colors">${paper.title}</h3>
+                    <div class="flex items-center text-slate-500 text-sm"><i data-lucide="book" class="w-4 h-4 mr-2"></i>${paper.journal}<i data-lucide="external-link" class="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity"></i></div>
+                </a>
+            `).join('');
 
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-                menuIconOpen.classList.toggle('hidden');
-                menuIconClose.classList.toggle('hidden');
-            });
-            
-            document.querySelectorAll('#mobile-menu a').forEach(link => {
-                link.addEventListener('click', () => {
-                    mobileMenu.classList.add('hidden');
-                    menuIconOpen.classList.remove('hidden');
-                    menuIconClose.classList.add('hidden');
-                });
-            });
+            document.getElementById('contact-email').href = `mailto:${DATA.profile.email}`;
+            document.querySelector('.email-text').innerText = DATA.profile.email;
+            document.getElementById('contact-phone').href = `tel:${DATA.profile.phone}`;
+            document.querySelector('.phone-text').innerText = DATA.profile.phone;
+            document.getElementById('contact-location').innerText = DATA.profile.location;
+
+            renderProjects('All');
+            renderTabs('All');
+            lucide.createIcons();
+
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-menu');
+            btn.addEventListener('click', () => { menu.classList.toggle('hidden'); });
         });
+
+        function renderTabs(activeTab) {
+            const tabs = ["All", "Smart Health", "Environment", "Urban Planning"];
+            document.getElementById('project-tabs').innerHTML = tabs.map(tab => `
+                <button onclick="renderProjects('${tab}'); renderTabs('${tab}')" class="px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === tab ? 'bg-primary-600 text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-800'}">${tab}</button>
+            `).join('');
+        }
+
+        function renderProjects(category) {
+            const filtered = category === 'All' ? DATA.projects : DATA.projects.filter(p => p.category === category);
+            document.getElementById('projects-grid').innerHTML = filtered.map(p => `
+                <div class="bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 hover:border-primary-500/40 transition-all group flex flex-col h-full hover:shadow-2xl hover:shadow-primary-900/10">
+                    <div class="h-56 overflow-hidden relative cursor-pointer" onclick="openLightbox('${p.image}')">
+                        <img src="${p.image}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+                        <span class="absolute top-4 right-4 bg-slate-900/90 backdrop-blur text-primary-400 border border-primary-500/20 text-xs font-bold px-3 py-1 rounded-full shadow-lg uppercase tracking-wider">${p.category}</span>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                            <i data-lucide="zoom-in" class="text-white w-10 h-10 drop-shadow-lg"></i>
+                        </div>
+                    </div>
+                    <div class="p-8 flex-1 flex flex-col">
+                        <h3 class="text-xl font-bold text-white mb-2 font-serif group-hover:text-primary-400 transition-colors leading-tight">${p.title}</h3>
+                        <p class="text-xs text-slate-500 mb-4 font-semibold uppercase tracking-wide border-l-2 border-primary-500 pl-3">${p.role}</p>
+                        <p class="text-slate-400 text-sm mb-6 flex-1 leading-relaxed border-b border-slate-800 pb-6">${p.desc}</p>
+                        <div class="flex flex-wrap gap-2 mb-6">${p.tech.map(t => `<span class="text-[10px] font-bold bg-slate-900 text-slate-300 px-2 py-1 rounded border border-slate-800">${t}</span>`).join('')}</div>
+                        <a href="${p.link}" target="_blank" class="inline-flex items-center justify-center w-full py-3 rounded-lg bg-slate-900 hover:bg-primary-600 text-slate-300 hover:text-white font-medium transition-all border border-slate-800 hover:border-transparent group/btn">
+                            Xem Demo <i data-lucide="arrow-up-right" class="ml-2 w-4 h-4 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform"></i>
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
     </script>
 </body>
 </html>
