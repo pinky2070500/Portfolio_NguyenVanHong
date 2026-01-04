@@ -6,7 +6,7 @@ Mục tiêu: thể hiện năng lực chuyên môn về **GIS, Viễn thám và 
 ---
 
 ## 🚀 Truy cập CV
-🔗 [Xem CV Online tại đây](https://pinky2070500.github.io/Project-Lead---HD-Map/)
+🔗 [Xem CV Online tại đây](https://pinky2070500.github.io/Portfolio_NguyenVanHong/)
 
 ---
 
